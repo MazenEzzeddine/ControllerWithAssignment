@@ -71,7 +71,7 @@ public class AssignmentServer implements Runnable{
         @Override
         public void getAssignment(AssignmentRequest request, StreamObserver<AssignmentResponse> responseObserver) {
 
-            if(BinPack.assignment.size()==0) {
+            if(BinPack3p.assignment.size()==0) {
 
                 List<PartitionGrpc> pgrpclist = new ArrayList<>();
                 for (Partition p : ArrivalProducer.topicpartitions) {
@@ -95,7 +95,7 @@ public class AssignmentServer implements Runnable{
 
            log.info(request.getRequest());
            //TODO Synchronize access to assignment
-            List<Consumer> assignment = BinPack.assignment;
+            List<Consumer> assignment = BinPack3p.assignment;
             log.info("The assignment is {}", assignment);
 
             List<ConsumerGrpc> assignmentReply = new ArrayList<>(assignment.size());
@@ -112,13 +112,13 @@ public class AssignmentServer implements Runnable{
                 assignmentReply.add(consg);
             }
 
-            for(ConsumerGrpc cons : assignmentReply){
+         /*   for(ConsumerGrpc cons : assignmentReply){
                 log.info("Consumer {} has the following partitions", cons.getId());
                 for(PartitionGrpc part : cons.getAssignedPartitionsList()){
                     log.info("partition {}", part.getId());
                 }
 
-            }
+            }*/
             responseObserver.onNext(AssignmentResponse.newBuilder().addAllConsumers(assignmentReply).build());
             responseObserver.onCompleted();
             log.info("Sent Assignment to client");

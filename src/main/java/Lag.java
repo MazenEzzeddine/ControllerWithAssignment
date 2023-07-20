@@ -36,15 +36,15 @@ public class Lag {
 
     public  static void readEnvAndCrateAdminClient() throws ExecutionException, InterruptedException {
 
-        topic = "testtopic1";
-        CONSUMER_GROUP = "testgroup1";
+        topic = "testtopic11";
+        CONSUMER_GROUP = "testgroup11";
         BOOTSTRAP_SERVERS = System.getenv("BOOTSTRAP_SERVERS");
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         admin = AdminClient.create(props);
 
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 9; i++) {
             //ArrivalProducer.topicpartitions.get(i).setLag(0L);
             Partition p = new Partition(i,0L,0.0);
             partitions.add(p);
@@ -60,7 +60,7 @@ public class Lag {
         Map<TopicPartition, OffsetSpec> requestLatestOffsets = new HashMap<>();
 
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 9; i++) {
             requestLatestOffsets.put(new TopicPartition(topic, i), OffsetSpec.latest());
 
 
@@ -73,14 +73,14 @@ public class Lag {
          totalLag=0L;
 
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 9; i++) {
             TopicPartition t = new TopicPartition(topic, i);
             long latestOffset = latestOffsets.get(t).offset();
             long committedoffset = committedOffsets.get(t).offset();
             partitions.get(i).setLag(latestOffset - committedoffset);
             ArrivalProducer.topicpartitions.get(i).setLag(latestOffset-committedoffset);
             totalLag += partitions.get(i).getLag();
-            log.info("partition {} has lag {}", i, partitions.get(i).getLag());
+            //log.info("partition {} has lag {}", i, partitions.get(i).getLag());
         }
 
 
