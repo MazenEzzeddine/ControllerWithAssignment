@@ -9,11 +9,8 @@ import java.util.ArrayList;
 public class ArrivalProducer {
 
     private static final Logger log = LogManager.getLogger(ArrivalProducer.class);
-
     static ArrayList<Partition> topicpartitions;
-
     static float totalArrivalrate;
-
 
     static {
         topicpartitions = new ArrayList<>();
@@ -22,7 +19,6 @@ public class ArrivalProducer {
         }
 
     }
-
 
     public static void callForArrivals() {
         ManagedChannel managedChannel = ManagedChannelBuilder.forAddress("arrivalservice", 5002)

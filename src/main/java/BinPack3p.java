@@ -13,7 +13,7 @@ public class BinPack3p {
 
     //TODO give fup and fdown as paramters to the functions.
     private static final Logger log = LogManager.getLogger(BinPack3p.class);
-    private  int size =1;
+    private  int size =9;
     public   Instant LastUpScaleDecision = Instant.now();
 
     //0.5 WSLA is reached around 85 events/sec

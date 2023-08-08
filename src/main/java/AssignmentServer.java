@@ -70,8 +70,7 @@ public class AssignmentServer implements Runnable{
     public static class AssignmentService extends AssignmentServiceGrpc.AssignmentServiceImplBase {
         @Override
         public void getAssignment(AssignmentRequest request, StreamObserver<AssignmentResponse> responseObserver) {
-
-            if(BinPack3p.assignment.size()==0) {
+           /* if(BinPack3p.assignment.size()==0) {
 
                 List<PartitionGrpc> pgrpclist = new ArrayList<>();
                 for (Partition p : ArrivalProducer.topicpartitions) {
@@ -86,6 +85,28 @@ public class AssignmentServer implements Runnable{
                 log.info("The assignment is {}", assignmentReply);
 
 
+                responseObserver.onNext(AssignmentResponse.newBuilder().addAllConsumers(assignmentReply).build());
+                responseObserver.onCompleted();
+                log.info("Sent Assignment to client");
+                return;
+            }*/
+
+            if(BinPack3p.assignment.size()==0) {
+                List<ConsumerGrpc> assignmentReply = new ArrayList<>();
+                /////////////////////////////////
+                for (int i = 0; i<9; i++) {
+                    List<PartitionGrpc> pgrpclist = new ArrayList<>();
+                        PartitionGrpc pgrpc =  PartitionGrpc.newBuilder().setId(i).build();
+                        pgrpclist.add(pgrpc);
+                    ConsumerGrpc consg  =  ConsumerGrpc.newBuilder().setId(i)
+                            .addAllAssignedPartitions(pgrpclist).build();
+                    assignmentReply.add(consg);
+                }
+
+                ////////////////////////////////////
+
+
+                log.info("The assignment is {}", assignmentReply);
                 responseObserver.onNext(AssignmentResponse.newBuilder().addAllConsumers(assignmentReply).build());
                 responseObserver.onCompleted();
                 log.info("Sent Assignment to client");
@@ -122,7 +143,6 @@ public class AssignmentServer implements Runnable{
             responseObserver.onNext(AssignmentResponse.newBuilder().addAllConsumers(assignmentReply).build());
             responseObserver.onCompleted();
             log.info("Sent Assignment to client");
-
         }
     }
 

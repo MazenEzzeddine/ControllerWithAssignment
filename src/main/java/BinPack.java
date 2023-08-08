@@ -102,7 +102,6 @@ public class BinPack {
                 break;
         }
         log.info(" The BP up scaler recommended for group {} {}", "testgroup1", consumers.size());
-
         assignment = consumers;
 
         log.info("with the following Assignment");

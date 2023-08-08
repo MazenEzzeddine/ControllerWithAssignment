@@ -10,19 +10,10 @@ public class Controller implements Runnable {
     private static final Logger log = LogManager.getLogger(Controller.class);
     static BinPack3p bp;
 
-
-
-
-
-
     private static void initialize() throws InterruptedException, ExecutionException {
         bp = new BinPack3p();
 
       Lag.readEnvAndCrateAdminClient();
-
-
-
-
 
         while (true) {
             log.info("Querying Prometheus");
