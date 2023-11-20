@@ -32,10 +32,10 @@ public class Controller implements Runnable {
 
     private static void scaleLogic() throws InterruptedException {
 
-        if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() >10){
+        if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() >3){
             bp.scaleAsPerBinPack();
         } else {
-            log.info("No scale group 1 cooldown");
+            log.info("No scale ");
         }
     }
 
@@ -50,7 +50,5 @@ public class Controller implements Runnable {
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-
-
     }
 }
