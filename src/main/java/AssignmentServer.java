@@ -70,26 +70,6 @@ public class AssignmentServer implements Runnable{
     public static class AssignmentService extends AssignmentServiceGrpc.AssignmentServiceImplBase {
         @Override
         public void getAssignment(AssignmentRequest request, StreamObserver<AssignmentResponse> responseObserver) {
-           /* if(BinPack3p.assignment.size()==0) {
-
-                List<PartitionGrpc> pgrpclist = new ArrayList<>();
-                for (Partition p : ArrivalProducer.topicpartitions) {
-                    PartitionGrpc pgrpc =  PartitionGrpc.newBuilder().setId(p.getId()).build();
-                    pgrpclist.add(pgrpc);
-                }
-
-                ConsumerGrpc consg  =  ConsumerGrpc.newBuilder().setId(0).addAllAssignedPartitions(pgrpclist).build();
-                List<ConsumerGrpc> assignmentReply = new ArrayList<>();
-
-                assignmentReply.add(consg);
-                log.info("The assignment is {}", assignmentReply);
-
-
-                responseObserver.onNext(AssignmentResponse.newBuilder().addAllConsumers(assignmentReply).build());
-                responseObserver.onCompleted();
-                log.info("Sent Assignment to client");
-                return;
-            }*/
 
             if(BinPack3p.assignment.size()==0) {
                 List<ConsumerGrpc> assignmentReply = new ArrayList<>();

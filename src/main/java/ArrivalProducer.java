@@ -25,7 +25,7 @@ public class ArrivalProducer {
                 .usePlaintext()
                 .build();
 
-        ArrivalServiceGrpc.ArrivalServiceBlockingStub  arrivalServiceBlockingStub =
+        ArrivalServiceGrpc.ArrivalServiceBlockingStub arrivalServiceBlockingStub =
                 ArrivalServiceGrpc.newBlockingStub(managedChannel);
         ArrivalRequest request = ArrivalRequest.newBuilder().setArrivalrequest("Give me the arrival rate plz").build();
         ArrivalResponse reply = arrivalServiceBlockingStub.consumptionRate(request);
@@ -37,15 +37,15 @@ public class ArrivalProducer {
             topicpartitions.get(i).setArrivalRate(partitionArrival);
         }*/
 
-       // double partitionArrival = reply.getArrival()/5.0;
-        log.info("Arrival into first 2 partition is {}", (totalArrivalrate * 0.5)/2.0);
+        // double partitionArrival = reply.getArrival()/5.0;
+        log.info("Arrival into first 2 partition is {}", (totalArrivalrate * 0.5) / 2.0);
         for (int i = 0; i < 2; i++) {
-            topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5)/2.0);
+            topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5) / 2.0);
         }
 
-        log.info("Arrival into first remaining 7 partitions is {}", (totalArrivalrate * 0.5)/7.0);
+        log.info("Arrival into first remaining 7 partitions is {}", (totalArrivalrate * 0.5) / 7.0);
         for (int i = 2; i < 9; i++) {
-            topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5)/7.0);
+            topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5) / 7.0);
         }
         managedChannel.shutdown();
     }
@@ -57,16 +57,13 @@ public class ArrivalProducer {
                 .build();
 
         ArrivalServiceGrpc.ArrivalServiceBlockingStub rateServiceBlockingStub
-                 =  ArrivalServiceGrpc.newBlockingStub(managedChannel);
+                = ArrivalServiceGrpc.newBlockingStub(managedChannel);
         RateRequest request = RateRequest.newBuilder().setRaterequest("Give me the Assignment plz").build();
         RateResponse reply = rateServiceBlockingStub.consumptionRatee(request);
         log.info("latency is {}", reply);
         managedChannel.shutdown();
 
     }
-
-
-
 
 
 }
