@@ -7,7 +7,6 @@ import java.util.StringTokenizer;
 
 public class KafkaConsumerConfig {
     private static final Logger log = LogManager.getLogger(KafkaConsumerConfig.class);
-    private static final long DEFAULT_MESSAGES_COUNT = 10;
     private final String bootstrapServers;
     private final String topic;
     private final String groupId;
@@ -23,9 +22,9 @@ public class KafkaConsumerConfig {
 
     }
     public static KafkaConsumerConfig fromEnv() {
-        String bootstrapServers = System.getenv("my-cluster-kafka-bootsrap:9092");
-        String topic = System.getenv("testtopic11");
-        String groupId = System.getenv("testgroup1");
+        String bootstrapServers = "my-cluster-kafka-bootsrap:9092"; //System.getenv("my-cluster-kafka-bootsrap:9092");
+        String topic = "testtopic11";//System.getenv("testtopic11");
+        String groupId = "testgroup1";//System.getenv("testgroup1");
 
         return new KafkaConsumerConfig(bootstrapServers, topic, groupId);
     }
