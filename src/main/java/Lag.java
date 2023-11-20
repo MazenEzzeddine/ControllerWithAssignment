@@ -14,7 +14,6 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 public class Lag {
-
     private static final Logger log = LogManager.getLogger(Lag.class);
     public static String CONSUMER_GROUP;
     public static AdminClient admin = null;
@@ -35,7 +34,6 @@ public class Lag {
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         admin = AdminClient.create(props);
-
 
         for (int i = 0; i < 9; i++) {
             //ArrivalProducer.topicpartitions.get(i).setLag(0L);

@@ -23,8 +23,12 @@ public class BinPack3p {
     static boolean scaled;
 
     static List<Consumer> assignment = new ArrayList<Consumer>();
+    static List<Consumer> currentAssignment = assignment;
+
 
     private KafkaConsumer<byte[], byte[]> metadataConsumer;
+
+
 
 
     public void scaleAsPerBinPack() {
@@ -39,9 +43,7 @@ public class BinPack3p {
             log.info("We have to upscale  group1 by {}", replicasForscale);
             // neededsize=5;
             size = neededsize;
-
             LastUpScaleDecision = Instant.now();
-
 
 /*            new Thread(new Runnable() {
                 @Override
@@ -53,14 +55,13 @@ public class BinPack3p {
                 }
             }).start();*/
 
+            currentAssignment = assignment;
+
             try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                 k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsize);
                 log.info("I have Upscaled group {} you should have {}", "testgroup11", neededsize);
             }
-
-
             return;
-
         } else {
             int neededsized = binPackAndScaled();
             int replicasForscaled = size - neededsized;
@@ -70,7 +71,6 @@ public class BinPack3p {
                 // neededsized=5;
                 size = neededsized;
                 LastUpScaleDecision = Instant.now();
-
 /*
                 new Thread(new Runnable() {
                     @Override
@@ -82,25 +82,22 @@ public class BinPack3p {
 
                     }
                 }).start();*/
-
+                currentAssignment = assignment;
 
                 try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                     k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsized);
                     log.info("I have downscaled group {} you should have {}", "testgroup11", neededsized);
                 }
-
                 return;
-
             }
         }
-
         if (assignmentViolatesTheSLA()) {
             if (metadataConsumer == null) {
                 KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
-                log.info(KafkaConsumerConfig.class.getName() + ": {}", config.toString());
                 Properties props = KafkaConsumerConfig.createProperties(config);
                 metadataConsumer = new KafkaConsumer<>(props);
             }
+            currentAssignment = assignment;
             metadataConsumer.enforceRebalance();
         }
         log.info("===================================");
@@ -112,10 +109,7 @@ public class BinPack3p {
         List<Consumer> consumers = new ArrayList<>();
         int consumerCount = 1;
         List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-
-
         float fraction = 0.9f;//1.0f;//1;//0.9f;//1.0f;//0.9f; //1f;
-
 
         for (Partition partition : parts) {
             if (partition.getLag() > 200f * wsla * fraction/*dynamicAverageMaxConsumptionRate*wsla*/) {
@@ -124,8 +118,6 @@ public class BinPack3p {
                 partition.setLag((long) (200f * wsla * fraction/*dynamicAverageMaxConsumptionRate*wsla*/));
             }
         }
-
-
         //if a certain partition has an arrival rate  higher than R  set its arrival rate  to R
         //that should not happen in a well partionned topic
         for (Partition partition : parts) {
@@ -139,7 +131,6 @@ public class BinPack3p {
         }
         //start the bin pack FFD with sort
         Collections.sort(parts, Collections.reverseOrder());
-
         while (true) {
             int j;
             consumers.clear();
@@ -147,7 +138,6 @@ public class BinPack3p {
                 consumers.add(new Consumer((String.valueOf(t)), (long) (200f * wsla * fraction),
                         200f * fraction/*dynamicAverageMaxConsumptionRate*wsla*/));
             }
-
             for (j = 0; j < parts.size(); j++) {
                 int i;
                 Collections.sort(consumers, Collections.reverseOrder());
@@ -193,7 +183,6 @@ public class BinPack3p {
                 partition.setLag((long) (fractiondynamicAverageMaxConsumptionRate * wsla));
             }
         }
-
 
         //if a certain partition has an arrival rate  higher than R  set its arrival rate  to R
         //that should not happen in a well partionned topic
@@ -243,14 +232,10 @@ public class BinPack3p {
         return consumers.size();
     }
 
-
     private boolean assignmentViolatesTheSLA() {
-        List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-        double fractiondynamicAverageMaxConsumptionRate = 200f * 0.9;
-
-        for (Partition partition : parts) {
-            if (partition.getLag() > fractiondynamicAverageMaxConsumptionRate * wsla ||
-                    partition.getArrivalRate() > fractiondynamicAverageMaxConsumptionRate) {
+        for (Consumer cons : currentAssignment) {
+            if (cons.getRemainingLagCapacity() <  (long) (wsla*200*.9f)||
+                    cons.getRemainingArrivalCapacity() < 200*0.9f){
                 return true;
             }
         }

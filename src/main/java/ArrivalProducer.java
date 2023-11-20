@@ -6,17 +6,14 @@ import java.util.ArrayList;
 
 
 public class ArrivalProducer {
-
     private static final Logger log = LogManager.getLogger(ArrivalProducer.class);
     static ArrayList<Partition> topicpartitions;
     static float totalArrivalrate;
-
     static {
         topicpartitions = new ArrayList<>();
         for (int i = 0; i <= 8; i++) {
             topicpartitions.add(new Partition(i, 0, 0));
         }
-
     }
 
     public static void callForArrivals() {
@@ -61,7 +58,6 @@ public class ArrivalProducer {
         RateResponse reply = rateServiceBlockingStub.consumptionRatee(request);
         log.info("latency is {}", reply);
         managedChannel.shutdown();
-
     }
 
 

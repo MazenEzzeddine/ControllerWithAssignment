@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssignmentServer implements Runnable{
+public class AssignmentServer implements Runnable {
 
     private final int port;
     private final Server server;
@@ -57,7 +57,6 @@ public class AssignmentServer implements Runnable{
 
     @Override
     public void run() {
-
         try {
             start();
             blockUntilShutdown();
@@ -65,20 +64,16 @@ public class AssignmentServer implements Runnable{
             e.printStackTrace();
         }
     }
-
-
     public static class AssignmentService extends AssignmentServiceGrpc.AssignmentServiceImplBase {
         @Override
         public void getAssignment(AssignmentRequest request, StreamObserver<AssignmentResponse> responseObserver) {
-
-            if(BinPack3p.assignment.size()==0) {
+            if (BinPack3p.assignment.size() == 0) {
                 List<ConsumerGrpc> assignmentReply = new ArrayList<>();
-                /////////////////////////////////
-                for (int i = 0; i<9; i++) {
+                for (int i = 0; i < 9; i++) {
                     List<PartitionGrpc> pgrpclist = new ArrayList<>();
-                        PartitionGrpc pgrpc =  PartitionGrpc.newBuilder().setId(i).build();
-                        pgrpclist.add(pgrpc);
-                    ConsumerGrpc consg  =  ConsumerGrpc.newBuilder().setId(i)
+                    PartitionGrpc pgrpc = PartitionGrpc.newBuilder().setId(i).build();
+                    pgrpclist.add(pgrpc);
+                    ConsumerGrpc consg = ConsumerGrpc.newBuilder().setId(i)
                             .addAllAssignedPartitions(pgrpclist).build();
                     assignmentReply.add(consg);
                 }
@@ -89,23 +84,19 @@ public class AssignmentServer implements Runnable{
                 log.info("Sent Assignment to client");
                 return;
             }
-
-
-           log.info(request.getRequest());
-           //TODO Synchronize access to assignment
+            log.info(request.getRequest());
+            //TODO Synchronize access to assignment
             List<Consumer> assignment = BinPack3p.assignment;
             log.info("The assignment is {}", assignment);
-
             List<ConsumerGrpc> assignmentReply = new ArrayList<>(assignment.size());
-
             for (Consumer cons : assignment) {
                 List<PartitionGrpc> pgrpclist = new ArrayList<>();
                 for (Partition p : cons.getAssignedPartitions()) {
                     log.info("partition {} is assigned to consumer {}", p.getId(), cons.getId());
-                   PartitionGrpc pgrpc =  PartitionGrpc.newBuilder().setId(p.getId()).build();
-                   pgrpclist.add(pgrpc);
+                    PartitionGrpc pgrpc = PartitionGrpc.newBuilder().setId(p.getId()).build();
+                    pgrpclist.add(pgrpc);
                 }
-                ConsumerGrpc consg  =  ConsumerGrpc.newBuilder().setId(Integer.parseInt(cons.getId()))
+                ConsumerGrpc consg = ConsumerGrpc.newBuilder().setId(Integer.parseInt(cons.getId()))
                         .addAllAssignedPartitions(pgrpclist).build();
                 assignmentReply.add(consg);
             }
@@ -115,7 +106,6 @@ public class AssignmentServer implements Runnable{
                 for(PartitionGrpc part : cons.getAssignedPartitionsList()){
                     log.info("partition {}", part.getId());
                 }
-
             }*/
             responseObserver.onNext(AssignmentResponse.newBuilder().addAllConsumers(assignmentReply).build());
             responseObserver.onCompleted();
