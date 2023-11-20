@@ -111,6 +111,32 @@ spec:
                     #image: docker.io/mezzeddine/controllerreb1w5:v0
                     #image: docker.io/mezzeddine/controllerw05f:v0
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                     ports:
                     - containerPort: 5002
                     env:
