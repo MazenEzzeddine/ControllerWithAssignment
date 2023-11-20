@@ -82,10 +82,7 @@ public class AssignmentServer implements Runnable{
                             .addAllAssignedPartitions(pgrpclist).build();
                     assignmentReply.add(consg);
                 }
-
                 ////////////////////////////////////
-
-
                 log.info("The assignment is {}", assignmentReply);
                 responseObserver.onNext(AssignmentResponse.newBuilder().addAllConsumers(assignmentReply).build());
                 responseObserver.onCompleted();
