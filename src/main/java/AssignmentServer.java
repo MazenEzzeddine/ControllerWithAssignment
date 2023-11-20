@@ -11,25 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AssignmentServer implements Runnable {
-
     private final int port;
     private final Server server;
-
     private static final Logger log = LogManager.getLogger(AssignmentServer.class);
-
-
     public AssignmentServer(int port) throws IOException {
         this(ServerBuilder.forPort(port), port);
     }
-
     public AssignmentServer(ServerBuilder<?> serverBuilder, int port) {
         this.port = port;
         this.server = serverBuilder.addService(new AssignmentService()).build();
     }
-
     public void start() throws IOException {
-
-
         log.info("Server Started");
         server.start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -42,19 +34,16 @@ public class AssignmentServer implements Runnable {
             }
         });
     }
-
     public void stop() {
         if (server != null) {
             server.shutdown();
         }
     }
-
     private void blockUntilShutdown() throws InterruptedException {
         if (server != null) {
             server.awaitTermination();
         }
     }
-
     @Override
     public void run() {
         try {

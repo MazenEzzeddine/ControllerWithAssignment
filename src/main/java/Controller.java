@@ -1,10 +1,8 @@
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
-
 public class Controller implements Runnable {
     private static final Logger log = LogManager.getLogger(Controller.class);
     static BinPack3p bp;
@@ -25,7 +23,7 @@ public class Controller implements Runnable {
         }
     }
     private static void scaleLogic() throws InterruptedException {
-        if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() >3){
+        if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() > 3){
             bp.scaleAsPerBinPack();
         } else {
             log.info("No scale ");

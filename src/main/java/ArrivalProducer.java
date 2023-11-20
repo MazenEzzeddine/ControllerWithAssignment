@@ -17,13 +17,14 @@ public class ArrivalProducer {
     }
 
     public static void callForArrivals() {
-        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress("arrivalservice", 5002)
+        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress("arrivalservice",
+                        5002)
                 .usePlaintext()
                 .build();
-
         ArrivalServiceGrpc.ArrivalServiceBlockingStub arrivalServiceBlockingStub =
                 ArrivalServiceGrpc.newBlockingStub(managedChannel);
-        ArrivalRequest request = ArrivalRequest.newBuilder().setArrivalrequest("Give me the arrival rate plz").build();
+        ArrivalRequest request = ArrivalRequest.newBuilder()
+                .setArrivalrequest("Give me the arrival rate plz").build();
         ArrivalResponse reply = arrivalServiceBlockingStub.consumptionRate(request);
         log.info("Arrival from the producer is {}", reply);
         totalArrivalrate = reply.getArrival();
@@ -34,12 +35,14 @@ public class ArrivalProducer {
         }*/
 
         // double partitionArrival = reply.getArrival()/5.0;
-        log.info("Arrival into first 2 partition is {}", (totalArrivalrate * 0.5) / 2.0);
+        log.info("Arrival into first 2 partition is {}",
+                (totalArrivalrate * 0.5) / 2.0);
         for (int i = 0; i < 2; i++) {
             topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5) / 2.0);
         }
 
-        log.info("Arrival into first remaining 7 partitions is {}", (totalArrivalrate * 0.5) / 7.0);
+        log.info("Arrival into first remaining 7 partitions is {}",
+                (totalArrivalrate * 0.5) / 7.0);
         for (int i = 2; i < 9; i++) {
             topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5) / 7.0);
         }
@@ -48,14 +51,16 @@ public class ArrivalProducer {
 
 
     public static void callForConsumers() {
-        ManagedChannel managedChannel = ManagedChannelBuilder.forAddress("rateservice", 5002)
+        ManagedChannel managedChannel = ManagedChannelBuilder
+                .forAddress("rateservice", 5002)
                 .usePlaintext()
                 .build();
-
         ArrivalServiceGrpc.ArrivalServiceBlockingStub rateServiceBlockingStub
                 = ArrivalServiceGrpc.newBlockingStub(managedChannel);
-        RateRequest request = RateRequest.newBuilder().setRaterequest("Give me the Assignment plz").build();
-        RateResponse reply = rateServiceBlockingStub.consumptionRatee(request);
+        RateRequest request = RateRequest.newBuilder()
+                .setRaterequest("Give me the Assignment plz").build();
+        RateResponse reply = rateServiceBlockingStub
+                .consumptionRatee(request);
         log.info("latency is {}", reply);
         managedChannel.shutdown();
     }
