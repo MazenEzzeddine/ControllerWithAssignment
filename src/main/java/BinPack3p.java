@@ -25,7 +25,6 @@ public class BinPack3p {
     static List<Consumer> assignment = new ArrayList<Consumer>();
     static List<Consumer> currentAssignment = assignment;
 
-
     private KafkaConsumer<byte[], byte[]> metadataConsumer;
 
 
@@ -235,7 +234,7 @@ public class BinPack3p {
     private boolean assignmentViolatesTheSLA() {
         for (Consumer cons : currentAssignment) {
             if (cons.getRemainingLagCapacity() <  (long) (wsla*200*.9f)||
-                    cons.getRemainingArrivalCapacity() < 200*0.9f){
+                    cons.getRemainingArrivalCapacity() < 200f*0.9f){
                 return true;
             }
         }
