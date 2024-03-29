@@ -14,8 +14,10 @@ public class Main {
         Thread serverthread = new Thread(server);
         Thread controllerthread = new Thread(controller);
         serverthread.start();
-        log.info("Warming 5  minutes.");
-        Thread.sleep(60*5 * 1000);
+        log.info("Warming   20 sec.");
+        Thread.sleep(20 * 1000);
+        //Thread.sleep(60*5 * 1000);
+
         controllerthread.start();
 
     }

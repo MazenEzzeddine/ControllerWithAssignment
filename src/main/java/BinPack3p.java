@@ -13,7 +13,7 @@ public class BinPack3p {
 
     //TODO give fup and fdown as paramters to the functions.
     private static final Logger log = LogManager.getLogger(BinPack3p.class);
-    private  int size =9;
+    private  int size =1;
     public   Instant LastUpScaleDecision = Instant.now();
 
     //0.5 WSLA is reached around 85 events/sec
@@ -123,8 +123,8 @@ public class BinPack3p {
                 log.info("Since partition {} has arrival rate {} higher than consumer service rate {}" +
                                 " we are truncating its arrival rate", partition.getId(),
                         String.format("%.2f", partition.getArrivalRate()),
-                        String.format("%.2f",175f *fraction /*dynamicAverageMaxConsumptionRate*wsla*/));
-                partition.setArrivalRate(175f*fraction /*dynamicAverageMaxConsumptionRate*wsla*/);
+                        String.format("%.2f",175 *fraction /*dynamicAverageMaxConsumptionRate*wsla*/));
+                partition.setArrivalRate(175*fraction /*dynamicAverageMaxConsumptionRate*wsla*/);
             }
         }
         //start the bin pack FFD with sort

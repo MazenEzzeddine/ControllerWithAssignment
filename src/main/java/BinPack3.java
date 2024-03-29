@@ -17,8 +17,8 @@ public class BinPack3 {
     public   Instant LastUpScaleDecision = Instant.now();
 
     //0.5 WSLA is reached around 85 events/sec
-    private final double wsla = 0.5;
-   static boolean scaled;
+    private final double wsla = 0.5;//0.8;//1.5;//1.5;//1.0;//2.0; //= 0.5;
+    static boolean scaled;
 
     static List<Consumer> assignment =  new ArrayList<Consumer>();
 
@@ -101,15 +101,15 @@ public class BinPack3 {
 
 
 
-        float fraction = 0.9f;//1.0f;//1;//0.9f;//1.0f;//0.9f; //1f;
+        float fraction = 0.9f;//1.0f;//0.9f;//1.0f;//1;//0.9f;//1.0f;//0.9f; //1f;
 
 
 
         for (Partition partition : parts) {
-            if (partition.getLag() > 175*wsla * fraction/*dynamicAverageMaxConsumptionRate*wsla*/) {
+            if (partition.getLag() > /*175*//*200*/200*wsla * fraction/*dynamicAverageMaxConsumptionRate*wsla*/) {
                 log.info("Since partition {} has lag {} higher than consumer capacity times wsla {}" +
-                        " we are truncating its lag", partition.getId(), partition.getLag(), 175*wsla* fraction/*dynamicAverageMaxConsumptionRate*wsla*/);
-                partition.setLag((long)(175*wsla* fraction/*dynamicAverageMaxConsumptionRate*wsla*/));
+                        " we are truncating its lag", partition.getId(), partition.getLag(), /*175*/200*wsla* fraction/*dynamicAverageMaxConsumptionRate*wsla*/);
+                partition.setLag((long)(200/*175*/*wsla* fraction/*dynamicAverageMaxConsumptionRate*wsla*/));
             }
         }
 
@@ -119,12 +119,12 @@ public class BinPack3 {
         //if a certain partition has an arrival rate  higher than R  set its arrival rate  to R
         //that should not happen in a well partionned topic
         for (Partition partition : parts) {
-            if (partition.getArrivalRate() > 175 *fraction/*dynamicAverageMaxConsumptionRate*wsla*/) {
+            if (partition.getArrivalRate() > 200*/*175 **/fraction/*dynamicAverageMaxConsumptionRate*wsla*/) {
                 log.info("Since partition {} has arrival rate {} higher than consumer service rate {}" +
                                 " we are truncating its arrival rate", partition.getId(),
                         String.format("%.2f", partition.getArrivalRate()),
-                        String.format("%.2f",175f *fraction /*dynamicAverageMaxConsumptionRate*wsla*/));
-                partition.setArrivalRate(175f*fraction /*dynamicAverageMaxConsumptionRate*wsla*/);
+                        String.format("%.2f",200 *fraction /*dynamicAverageMaxConsumptionRate*wsla*/));
+                partition.setArrivalRate(200*fraction /*dynamicAverageMaxConsumptionRate*wsla*/);
             }
         }
         //start the bin pack FFD with sort
@@ -134,8 +134,8 @@ public class BinPack3 {
             int j;
             consumers.clear();
             for (int t = 0; t < consumerCount; t++) {
-                consumers.add(new Consumer((String.valueOf(t)),  (long)(175*wsla*fraction),
-                        175*fraction/*dynamicAverageMaxConsumptionRate*wsla*/));
+                consumers.add(new Consumer((String.valueOf(t)),  (long)(200*wsla*fraction),
+                        200*fraction/*dynamicAverageMaxConsumptionRate*wsla*/));
             }
 
             for (j = 0; j < parts.size(); j++) {
@@ -161,8 +161,8 @@ public class BinPack3 {
 
         assignment = consumers;
 
-        log.info("with the following Assignment");
-        log.info(assignment);
+     /*   log.info("with the following Assignment");
+        log.info(assignment);*/
 
         return consumers.size();
     }
@@ -172,7 +172,7 @@ public class BinPack3 {
         List<Consumer> consumers = new ArrayList<>();
         int consumerCount = 1;
         List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-        double fractiondynamicAverageMaxConsumptionRate = 175*0.4;//*1.0;/**0.5*//**0.7*/ /*dynamicAverageMaxConsumptionRate * 0.7*wsla*/;
+        double fractiondynamicAverageMaxConsumptionRate = 200/*175*/*0.4;//*1.0;/**0.5*//**0.7*/ /*dynamicAverageMaxConsumptionRate * 0.7*wsla*/;
 
 
         for (Partition partition : parts) {
@@ -233,9 +233,9 @@ public class BinPack3 {
 
         assignment = consumers;
 
-        log.info("with the following Assignment");
+       /* log.info("with the following Assignment");
         log.info(assignment);
-
+*/
         return consumers.size();
     }
 
