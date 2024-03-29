@@ -24,11 +24,10 @@ public class BinPack3p {
 
     static List<Consumer> assignment = new ArrayList<Consumer>();
     static List<Consumer> currentAssignment = assignment;
+    static List<Consumer> tempAssignment = assignment;
+
 
     private KafkaConsumer<byte[], byte[]> metadataConsumer;
-
-
-
 
     public void scaleAsPerBinPack() {
         scaled = false;
@@ -40,22 +39,9 @@ public class BinPack3p {
             scaled = true;
             //TODO IF and Else IF can be in the same logic
             log.info("We have to upscale  group1 by {}", replicasForscale);
-            // neededsize=5;
             size = neededsize;
             LastUpScaleDecision = Instant.now();
-
-/*            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try (final KubernetesClient k8s = new KubernetesClientBuilder().build()DefaultKubernetesClient()) {
-                        k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsize);
-                        log.info("I have Upscaled group {} you should have {}", "testgroup1", neededsize);
-                    }
-                }
-            }).start();*/
-
             currentAssignment = assignment;
-
             try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                 k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsize);
                 log.info("I have Upscaled group {} you should have {}", "testgroup11", neededsize);
@@ -65,22 +51,9 @@ public class BinPack3p {
             int neededsized = binPackAndScaled();
             int replicasForscaled = size - neededsized;
             if (replicasForscaled > 0) {
-                // scaled = true;
                 log.info("We have to downscale  group by {} {}", "testgroup1", replicasForscaled);
-                // neededsized=5;
                 size = neededsized;
                 LastUpScaleDecision = Instant.now();
-/*
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try (final KubernetesClient k8s = new KubernetesClientBuilder().build() *//*DefaultKubernetesClient()*//*) {
-                            k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsized);
-                            log.info("I have downscaled group {} you should have {}", "testgroup1", neededsized);
-                        }
-
-                    }
-                }).start();*/
                 currentAssignment = assignment;
 
                 try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
@@ -96,7 +69,7 @@ public class BinPack3p {
                 Properties props = KafkaConsumerConfig.createProperties(config);
                 metadataConsumer = new KafkaConsumer<>(props);
             }
-            currentAssignment = assignment;
+            currentAssignment =   tempAssignment;
             metadataConsumer.enforceRebalance();
         }
         log.info("===================================");
@@ -108,19 +81,19 @@ public class BinPack3p {
         List<Consumer> consumers = new ArrayList<>();
         int consumerCount = 1;
         List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-        float fraction = 0.9f;//1.0f;//1;//0.9f;//1.0f;//0.9f; //1f;
+        float fraction = 0.9f;
 
         for (Partition partition : parts) {
-            if (partition.getLag() > 200f * wsla * fraction/*dynamicAverageMaxConsumptionRate*wsla*/) {
+            if (partition.getLag() > 200f * wsla * fraction) {
                 log.info("Since partition {} has lag {} higher than consumer capacity times wsla {}" +
-                        " we are truncating its lag", partition.getId(), partition.getLag(), 200f * wsla * fraction/*dynamicAverageMaxConsumptionRate*wsla*/);
-                partition.setLag((long) (200f * wsla * fraction/*dynamicAverageMaxConsumptionRate*wsla*/));
+                        " we are truncating its lag", partition.getId(), partition.getLag(), 200f * wsla * fraction);
+                partition.setLag((long) (200f * wsla * fraction));
             }
         }
         //if a certain partition has an arrival rate  higher than R  set its arrival rate  to R
         //that should not happen in a well partionned topic
         for (Partition partition : parts) {
-            if (partition.getArrivalRate() > 200f /*dynamicAverageMaxConsumptionRate*wsla*/) {
+            if (partition.getArrivalRate() > 200f ) {
                 log.info("Since partition {} has arrival rate {} higher than consumer service rate {}" +
                                 " we are truncating its arrival rate", partition.getId(),
                         String.format("%.2f", partition.getArrivalRate()),
@@ -162,6 +135,7 @@ public class BinPack3p {
 
         log.info("with the following Assignment");
         log.info(assignment);
+        tempAssignment = assignment;
 
         return consumers.size();
     }
@@ -171,9 +145,7 @@ public class BinPack3p {
         List<Consumer> consumers = new ArrayList<>();
         int consumerCount = 1;
         List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-        double fractiondynamicAverageMaxConsumptionRate = 200f * 0.4;//*1.0;/**0.5*//**0.7*/ /*dynamicAverageMaxConsumptionRate * 0.7*wsla*/;
-
-
+        double fractiondynamicAverageMaxConsumptionRate = 200f * 0.4;
         for (Partition partition : parts) {
             if (partition.getLag() > fractiondynamicAverageMaxConsumptionRate * wsla) {
                 log.info("Since partition {} has lag {} higher than consumer capacity times wsla {}" +
@@ -182,9 +154,6 @@ public class BinPack3p {
                 partition.setLag((long) (fractiondynamicAverageMaxConsumptionRate * wsla));
             }
         }
-
-        //if a certain partition has an arrival rate  higher than R  set its arrival rate  to R
-        //that should not happen in a well partionned topic
         for (Partition partition : parts) {
             if (partition.getArrivalRate() > fractiondynamicAverageMaxConsumptionRate) {
                 log.info("Since partition {} has arrival rate {} higher than consumer service rate {}" +
