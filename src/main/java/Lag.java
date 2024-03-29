@@ -14,7 +14,6 @@ import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 public class Lag {
-
     private static final Logger log = LogManager.getLogger(Lag.class);
     public static String CONSUMER_GROUP;
     public static AdminClient admin = null;
@@ -29,15 +28,14 @@ public class Lag {
 
 
     public  static void readEnvAndCrateAdminClient() throws ExecutionException, InterruptedException {
-        topic = "testtopic1";
-        CONSUMER_GROUP = "testgroup1";
+        topic = "testtopic11";
+        CONSUMER_GROUP = "testgroup11";
         BOOTSTRAP_SERVERS = System.getenv("BOOTSTRAP_SERVERS");
         Properties props = new Properties();
         props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, BOOTSTRAP_SERVERS);
         admin = AdminClient.create(props);
 
-
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 9; i++) {
             //ArrivalProducer.topicpartitions.get(i).setLag(0L);
             Partition p = new Partition(i,0L,0.0);
             partitions.add(p);
@@ -50,14 +48,14 @@ public class Lag {
         committedOffsets = admin.listConsumerGroupOffsets(CONSUMER_GROUP)
                 .partitionsToOffsetAndMetadata().get();
         Map<TopicPartition, OffsetSpec> requestLatestOffsets = new HashMap<>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 9; i++) {
             requestLatestOffsets.put(new TopicPartition(topic, i), OffsetSpec.latest());
         }
         Map<TopicPartition, ListOffsetsResult.ListOffsetsResultInfo> latestOffsets =
                 admin.listOffsets(requestLatestOffsets).all().get();
          totalLag=0L;
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 9; i++) {
             TopicPartition t = new TopicPartition(topic, i);
             long latestOffset = latestOffsets.get(t).offset();
             long committedoffset = committedOffsets.get(t).offset();

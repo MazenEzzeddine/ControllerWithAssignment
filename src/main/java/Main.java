@@ -4,8 +4,6 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 
 public class Main {
-
-
     private static final Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -19,6 +17,5 @@ public class Main {
         //Thread.sleep(60*5 * 1000);
 
         controllerthread.start();
-
     }
 }
