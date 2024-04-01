@@ -62,6 +62,7 @@ public class BinPack3p {
             size = neededsize;
             LastUpScaleDecision = Instant.now();
             currentAssignment = assignment;
+            tempAssignment = currentAssignment;
             try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                 k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsize);
                 log.info("I have Upscaled group {} you should have {}", "testgroup11", neededsize);
@@ -91,6 +92,8 @@ public class BinPack3p {
                     "org.apache.kafka.common.serialization.StringDeserializer");
             metadataConsumer = new KafkaConsumer<>(props);
             metadataConsumer.enforceRebalance();
+            currentAssignment = tempAssignment;
+
             log.info("no");
         }
         log.info("===================================");
@@ -164,7 +167,7 @@ public class BinPack3p {
         List<Consumer> consumers = new ArrayList<>();
         int consumerCount = 1;
         List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-        double fractiondynamicAverageMaxConsumptionRate = 200f * 0.4;
+        double fractiondynamicAverageMaxConsumptionRate = 200f * 0.2;
         for (Partition partition : parts) {
             if (partition.getLag() > fractiondynamicAverageMaxConsumptionRate * wsla) {
                 log.info("Since partition {} has lag {} higher than consumer capacity times wsla {}" +
