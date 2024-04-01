@@ -1,6 +1,7 @@
 
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClientBuilder;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,11 +16,11 @@ public class BinPack3p {
 
     //TODO give fup and fdown as paramters to the functions.
     private static final Logger log = LogManager.getLogger(BinPack3p.class);
-    private int size = 9;
+    private int size = 1;
     public Instant LastUpScaleDecision = Instant.now();
 
     //0.5 WSLA is reached around 85 events/sec
-    private final double wsla = 0.5;
+    private final static double  wsla = 0.5;
     static boolean scaled;
 
     static List<Consumer> assignment = new ArrayList<Consumer>();
@@ -27,10 +28,29 @@ public class BinPack3p {
     static List<Consumer> tempAssignment = assignment;
 
 
-    private KafkaConsumer<byte[], byte[]> metadataConsumer;
+
+    private static KafkaConsumer<byte[], byte[]> metadataConsumer;
+
+    static double mu = 200.0;
+
+
+
+
+    static {
+        currentAssignment.add(new Consumer("0", (long) (mu * wsla * .9),
+                mu * .9));
+        for (Partition p : ArrivalProducer.topicpartitions) {
+            currentAssignment.get(0).assignPartition(p);
+        }
+
+       // k8s = new KubernetesClientBuilder().build();
+    }
+
+
+
+
 
     public void scaleAsPerBinPack() {
-        scaled = false;
         log.info("Currently we have this number of consumers group {} {}", "testgroup1", size);
         int neededsize = binPackAndScale();
         log.info("We currently need the following consumers for group1 (as per the bin pack) {}", neededsize);
@@ -55,7 +75,6 @@ public class BinPack3p {
                 size = neededsized;
                 LastUpScaleDecision = Instant.now();
                 currentAssignment = assignment;
-
                 try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                     k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsized);
                     log.info("I have downscaled group {} you should have {}", "testgroup11", neededsized);
@@ -63,14 +82,16 @@ public class BinPack3p {
                 return;
             }
         }
-        if (assignmentViolatesTheSLA()) {
-            if (metadataConsumer == null) {
-                KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
-                Properties props = KafkaConsumerConfig.createProperties(config);
-                metadataConsumer = new KafkaConsumer<>(props);
-            }
-            currentAssignment =   tempAssignment;
+        if (assignmentViolatesTheSLA2()) {
+            KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
+            Properties props = KafkaConsumerConfig.createProperties(config);
+            props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                    "org.apache.kafka.common.serialization.StringDeserializer");
+            props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                    "org.apache.kafka.common.serialization.StringDeserializer");
+            metadataConsumer = new KafkaConsumer<>(props);
             metadataConsumer.enforceRebalance();
+            log.info("no");
         }
         log.info("===================================");
     }
@@ -90,15 +111,14 @@ public class BinPack3p {
                 partition.setLag((long) (200f * wsla * fraction));
             }
         }
-        //if a certain partition has an arrival rate  higher than R  set its arrival rate  to R
-        //that should not happen in a well partionned topic
+
         for (Partition partition : parts) {
             if (partition.getArrivalRate() > 200f ) {
                 log.info("Since partition {} has arrival rate {} higher than consumer service rate {}" +
                                 " we are truncating its arrival rate", partition.getId(),
                         String.format("%.2f", partition.getArrivalRate()),
-                        String.format("%.2f", 200f * fraction /*dynamicAverageMaxConsumptionRate*wsla*/));
-                partition.setArrivalRate(200f * fraction /*dynamicAverageMaxConsumptionRate*wsla*/);
+                        String.format("%.2f", 200f * fraction ));
+                partition.setArrivalRate(200f * fraction );
             }
         }
         //start the bin pack FFD with sort
@@ -133,8 +153,7 @@ public class BinPack3p {
 
         assignment = consumers;
 
-        log.info("with the following Assignment");
-        log.info(assignment);
+
         tempAssignment = assignment;
 
         return consumers.size();
@@ -195,18 +214,40 @@ public class BinPack3p {
         }
         log.info(" The BP down scaler recommended  for group {} {}", "testgroup1", consumers.size());
         assignment = consumers;
-        log.info("with the following Assignment");
-        log.info(assignment);
+
         return consumers.size();
     }
 
+/*
     private boolean assignmentViolatesTheSLA() {
         for (Consumer cons : currentAssignment) {
             if (cons.getRemainingLagCapacity() <  (long) (wsla*200*.9f)||
                     cons.getRemainingArrivalCapacity() < 200f*0.9f){
+                return false;
+            }
+        }
+        return true;
+    }
+*/
+
+
+    private static boolean assignmentViolatesTheSLA2() {
+
+       List<Partition> partsReset = new ArrayList<>(ArrivalProducer.topicpartitions);
+        for (Consumer cons : currentAssignment) {
+            double sumPartitionsArrival = 0;
+            double sumPartitionsLag = 0;
+            for (Partition p : cons.getAssignedPartitions()) {
+                sumPartitionsArrival += partsReset.get(p.getId()).getArrivalRate();
+                sumPartitionsLag += partsReset.get(p.getId()).getLag();
+            }
+
+            if (sumPartitionsLag  > ( wsla * 200  * .9f)
+                || sumPartitionsArrival > 200* 0.9f) {
                 return true;
             }
         }
         return false;
     }
+
 }

@@ -3,7 +3,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Properties;
-import java.util.StringTokenizer;
 
 public class KafkaConsumerConfig {
     private static final Logger log = LogManager.getLogger(KafkaConsumerConfig.class);
@@ -22,9 +21,9 @@ public class KafkaConsumerConfig {
 
     }
     public static KafkaConsumerConfig fromEnv() {
-        String bootstrapServers = "my-cluster-kafka-bootsrap:9092"; //System.getenv("my-cluster-kafka-bootsrap:9092");
-        String topic = "testtopic11";//System.getenv("testtopic11");
-        String groupId = "testgroup1";//System.getenv("testgroup1");
+        String bootstrapServers = "my-cluster-kafka-bootstrap:9092"; //System.getenv("my-cluster-kafka-bootsrap:9092");
+        String topic = "testtopic1";//System.getenv("testtopic11");
+        String groupId = "testgroup11";//System.getenv("testgroup1");
 
         return new KafkaConsumerConfig(bootstrapServers, topic, groupId);
     }

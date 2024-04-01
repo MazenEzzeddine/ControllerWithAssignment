@@ -11,7 +11,7 @@ public class ArrivalProducer {
     static float totalArrivalrate;
     static {
         topicpartitions = new ArrayList<>();
-        for (int i = 0; i <= 8; i++) {
+        for (int i = 0; i <= 4; i++) {
             topicpartitions.add(new Partition(i, 0, 0));
         }
     }
@@ -28,14 +28,14 @@ public class ArrivalProducer {
         ArrivalResponse reply = arrivalServiceBlockingStub.consumptionRate(request);
         log.info("Arrival from the producer is {}", reply);
         totalArrivalrate = reply.getArrival();
-       /* double partitionArrival = reply.getArrival()/5.0;
+        double partitionArrival = reply.getArrival()/5.0;
         log.info("Arrival into each partition is {}", partitionArrival);
         for (int i = 0; i < 5; i++) {
             topicpartitions.get(i).setArrivalRate(partitionArrival);
-        }*/
+        }
 
         // double partitionArrival = reply.getArrival()/5.0;
-        log.info("Arrival into first 2 partition is {}",
+        /*log.info("Arrival into first 2 partition is {}",
                 (totalArrivalrate * 0.5) / 2.0);
         for (int i = 0; i < 2; i++) {
             topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5) / 2.0);
@@ -45,7 +45,7 @@ public class ArrivalProducer {
                 (totalArrivalrate * 0.5) / 7.0);
         for (int i = 2; i < 9; i++) {
             topicpartitions.get(i).setArrivalRate((totalArrivalrate * 0.5) / 7.0);
-        }
+        }*/
         managedChannel.shutdown();
     }
 

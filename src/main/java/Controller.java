@@ -23,11 +23,14 @@ public class Controller implements Runnable {
         }
     }
     private static void scaleLogic() throws InterruptedException {
-        if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() > 3){
+
+        bp.scaleAsPerBinPack();
+
+       /* if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() > 3){
             bp.scaleAsPerBinPack();
         } else {
             log.info("No scale ");
-        }
+        }*/
     }
 
 
