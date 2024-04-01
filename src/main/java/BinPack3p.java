@@ -93,8 +93,6 @@ public class BinPack3p {
             metadataConsumer = new KafkaConsumer<>(props);
             metadataConsumer.enforceRebalance();
             currentAssignment = tempAssignment;
-
-            log.info("no");
         }
         log.info("===================================");
     }
@@ -167,7 +165,7 @@ public class BinPack3p {
         List<Consumer> consumers = new ArrayList<>();
         int consumerCount = 1;
         List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-        double fractiondynamicAverageMaxConsumptionRate = 200f * 0.2;
+        double fractiondynamicAverageMaxConsumptionRate = 200f * 0.4;
         for (Partition partition : parts) {
             if (partition.getLag() > fractiondynamicAverageMaxConsumptionRate * wsla) {
                 log.info("Since partition {} has lag {} higher than consumer capacity times wsla {}" +

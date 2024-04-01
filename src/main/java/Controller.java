@@ -19,7 +19,7 @@ public class Controller implements Runnable {
             log.info("Sleeping for 1 seconds");
             log.info("******************************************");
             log.info("******************************************");
-            Thread.sleep(1000);
+            Thread.sleep(20000);
         }
     }
     private static void scaleLogic() throws InterruptedException {
