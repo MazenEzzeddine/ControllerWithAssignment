@@ -23,7 +23,7 @@ public class KafkaConsumerConfig {
     public static KafkaConsumerConfig fromEnv() {
         String bootstrapServers = "my-cluster-kafka-bootstrap:9092"; //System.getenv("my-cluster-kafka-bootsrap:9092");
         String topic = "testtopic1";//System.getenv("testtopic11");
-        String groupId = "testgroup11";//System.getenv("testgroup1");
+        String groupId = "testgroup1";//System.getenv("testgroup1");
 
         return new KafkaConsumerConfig(bootstrapServers, topic, groupId);
     }
@@ -37,9 +37,7 @@ public class KafkaConsumerConfig {
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, config.getEnableAutoCommit());
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
                 "org.apache.kafka.common.serialization.StringDeserializer");
-        //props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, CustomerDeserializer.class.getName());
-       // props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-        // "org.apache.kafka.common.serialization.StringDeserializer");
+
 
         return props;
     }
