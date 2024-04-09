@@ -78,7 +78,7 @@ public class BinPack3p {
                 currentAssignment = assignment;
                 try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                     k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsized);
-                    log.info("I have downscaled group {} you should have {}", "testgroup11", neededsized);
+                    log.info("I have downscaled group {} you should have {}", "testgroup1", neededsized);
                 }
                 return;
             }
@@ -103,7 +103,7 @@ public class BinPack3p {
         List<Consumer> consumers = new ArrayList<>();
         int consumerCount = 1;
         List<Partition> parts = new ArrayList<>(ArrivalProducer.topicpartitions);
-        float fraction = 0.9f;
+        float fraction = .9f;
 
         for (Partition partition : parts) {
             if (partition.getLag() > 200f * wsla * fraction) {
