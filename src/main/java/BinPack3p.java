@@ -16,7 +16,7 @@ public class BinPack3p {
 
     //TODO give fup and fdown as paramters to the functions.
     private static final Logger log = LogManager.getLogger(BinPack3p.class);
-    private int size = 1;
+    static  int size = 1;
     public Instant LastUpScaleDecision = Instant.now();
 
     //0.5 WSLA is reached around 85 events/sec
@@ -24,8 +24,8 @@ public class BinPack3p {
     static boolean scaled;
 
     static List<Consumer> assignment = new ArrayList<Consumer>();
-    static List<Consumer> currentAssignment = assignment;
-    static List<Consumer> tempAssignment = assignment;
+    static List<Consumer> currentAssignment =new ArrayList<Consumer>();
+    static List<Consumer> tempAssignment = new ArrayList<Consumer>();
 
 
 
@@ -83,7 +83,7 @@ public class BinPack3p {
                 return;
             }
         }
-        if (assignmentViolatesTheSLA2()) {
+       /* if (assignmentViolatesTheSLA2()) {
             KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
             Properties props = KafkaConsumerConfig.createProperties(config);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
@@ -93,7 +93,7 @@ public class BinPack3p {
             metadataConsumer = new KafkaConsumer<>(props);
             metadataConsumer.enforceRebalance();
             currentAssignment = tempAssignment;
-        }
+        }*/
         log.info("===================================");
     }
 
@@ -155,7 +155,7 @@ public class BinPack3p {
         assignment = consumers;
 
 
-        tempAssignment = assignment;
+       // tempAssignment = assignment;
 
         return consumers.size();
     }

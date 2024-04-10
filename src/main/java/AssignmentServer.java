@@ -56,7 +56,7 @@ public class AssignmentServer implements Runnable {
     public static class AssignmentService extends AssignmentServiceGrpc.AssignmentServiceImplBase {
         @Override
         public void getAssignment(AssignmentRequest request, StreamObserver<AssignmentResponse> responseObserver) {
-            if (BinPack3p.assignment.size() == 0) {
+            if (BinPack3p.currentAssignment.size() == 0) {
                 List<ConsumerGrpc> assignmentReply = new ArrayList<>();
                 for (int i = 0; i < 5; i++) {
                     List<PartitionGrpc> pgrpclist = new ArrayList<>();
@@ -75,7 +75,7 @@ public class AssignmentServer implements Runnable {
             }
             log.info(request.getRequest());
             //TODO Synchronize access to assignment
-            List<Consumer> assignment = BinPack3p.assignment;
+            List<Consumer> assignment = BinPack3p.currentAssignment;
             log.info("The assignment is {}", assignment);
             List<ConsumerGrpc> assignmentReply = new ArrayList<>(assignment.size());
             for (Consumer cons : assignment) {
