@@ -90,7 +90,6 @@ public class BinPack3p {
             }
         }
         if (assignmentViolatesTheSLA2()) {
-            log.info("yes");
             if(metadataConsumer == null) {
                 KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
                 Properties props = KafkaConsumerConfig.createProperties(config);
