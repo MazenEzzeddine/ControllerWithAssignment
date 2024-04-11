@@ -29,19 +29,19 @@ public class Controller implements Runnable {
     }
     private static void scaleLogic() throws InterruptedException, ExecutionException {
 
-
+/*
         if (Lag.queryConsumerGroup() != BinPack3p.size) {
             log.info("no action, previous action is not seen yet");
             return;
         }
 
-        bp.scaleAsPerBinPack();
+        bp.scaleAsPerBinPack();*/
 
-       /* if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() > 3){
+        if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() > 7){
             bp.scaleAsPerBinPack();
         } else {
             log.info("No scale ");
-        }*/
+        }
     }
 
 
