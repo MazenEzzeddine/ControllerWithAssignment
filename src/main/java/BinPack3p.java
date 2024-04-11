@@ -61,8 +61,8 @@ public class BinPack3p {
             log.info("We have to upscale  group1 by {}", replicasForscale);
             size = neededsize;
             LastUpScaleDecision = Instant.now();
-            currentAssignment = assignment;
-            tempAssignment = currentAssignment;
+            currentAssignment = List.copyOf(assignment);
+            tempAssignment = List.copyOf(currentAssignment);
 
        /*     Collections.copy(currentAssignment, assignment);
             Collections.copy(tempAssignment, assignment);*/
@@ -79,8 +79,7 @@ public class BinPack3p {
                 log.info("We have to downscale  group by {} {}", "testgroup1", replicasForscaled);
                 size = neededsized;
                 LastUpScaleDecision = Instant.now();
-                currentAssignment = assignment;
-
+                currentAssignment = List.copyOf(assignment);
                // Collections.copy(currentAssignment, assignment);
 
                 try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
@@ -91,15 +90,19 @@ public class BinPack3p {
             }
         }
         if (assignmentViolatesTheSLA2()) {
-            KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
-            Properties props = KafkaConsumerConfig.createProperties(config);
-            props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                    "org.apache.kafka.common.serialization.StringDeserializer");
-            props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
-                    "org.apache.kafka.common.serialization.StringDeserializer");
-            metadataConsumer = new KafkaConsumer<>(props);
+            log.info("yes");
+            if(metadataConsumer == null) {
+                KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
+                Properties props = KafkaConsumerConfig.createProperties(config);
+                props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                        "org.apache.kafka.common.serialization.StringDeserializer");
+                props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+                        "org.apache.kafka.common.serialization.StringDeserializer");
+                metadataConsumer = new KafkaConsumer<>(props);
+
+            }
             metadataConsumer.enforceRebalance();
-            currentAssignment = tempAssignment;
+            currentAssignment = List.copyOf(tempAssignment);
         }
         log.info("===================================");
     }
@@ -121,7 +124,7 @@ public class BinPack3p {
         }
 
         for (Partition partition : parts) {
-            if (partition.getArrivalRate() > 200f ) {
+            if (partition.getArrivalRate() > 200f * fraction ) {
                 log.info("Since partition {} has arrival rate {} higher than consumer service rate {}" +
                                 " we are truncating its arrival rate", partition.getId(),
                         String.format("%.2f", partition.getArrivalRate()),
@@ -242,6 +245,18 @@ public class BinPack3p {
     private static boolean assignmentViolatesTheSLA2() {
 
        List<Partition> partsReset = new ArrayList<>(ArrivalProducer.topicpartitions);
+        float   fraction = 0.9f;
+        for (Partition partition : partsReset) {
+            if (partition.getLag() > 200f * wsla * fraction) {
+                partition.setLag((long) (200f * wsla * fraction));
+            }
+        }
+
+        for (Partition partition : partsReset) {
+            if (partition.getArrivalRate() > 200f * fraction) {
+                partition.setArrivalRate(200f * fraction );
+            }
+        }
         for (Consumer cons : currentAssignment) {
             double sumPartitionsArrival = 0;
             double sumPartitionsLag = 0;
