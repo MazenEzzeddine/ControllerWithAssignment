@@ -37,11 +37,13 @@ public class Controller implements Runnable {
 
         bp.scaleAsPerBinPack();*/
 
-        if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() > 7){
+       /* if  (Duration.between(bp.LastUpScaleDecision, Instant.now()).getSeconds() > 7){
             bp.scaleAsPerBinPack();
         } else {
             log.info("No scale ");
-        }
+        }*/
+
+        bp.scaleAsPerBinPack();
     }
 
 
