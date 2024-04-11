@@ -63,6 +63,10 @@ public class BinPack3p {
             LastUpScaleDecision = Instant.now();
             currentAssignment = assignment;
             tempAssignment = currentAssignment;
+
+       /*     Collections.copy(currentAssignment, assignment);
+            Collections.copy(tempAssignment, assignment);*/
+
             try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                 k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsize);
                 log.info("I have Upscaled group {} you should have {}", "testgroup11", neededsize);
@@ -76,6 +80,9 @@ public class BinPack3p {
                 size = neededsized;
                 LastUpScaleDecision = Instant.now();
                 currentAssignment = assignment;
+
+               // Collections.copy(currentAssignment, assignment);
+
                 try (final KubernetesClient k8s = new KubernetesClientBuilder().build()) {
                     k8s.apps().deployments().inNamespace("default").withName("latency").scale(neededsized);
                     log.info("I have downscaled group {} you should have {}", "testgroup1", neededsized);
@@ -83,7 +90,7 @@ public class BinPack3p {
                 return;
             }
         }
-       /* if (assignmentViolatesTheSLA2()) {
+        if (assignmentViolatesTheSLA2()) {
             KafkaConsumerConfig config = KafkaConsumerConfig.fromEnv();
             Properties props = KafkaConsumerConfig.createProperties(config);
             props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
@@ -93,7 +100,7 @@ public class BinPack3p {
             metadataConsumer = new KafkaConsumer<>(props);
             metadataConsumer.enforceRebalance();
             currentAssignment = tempAssignment;
-        }*/
+        }
         log.info("===================================");
     }
 
